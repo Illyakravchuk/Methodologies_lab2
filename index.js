@@ -107,32 +107,26 @@ class CircularList {
   }
 
   deleteAll(data) {
-    if (!this.head) return;
-
-    while (this.head.data === data) {
-      this.head = this.head.next;
-      this.tail.next = this.head;
-      this.size--;
-      if (!this.head) {
-        this.tail = null;
-        this.size = 0;
-        return;
-      }
-    }
-
     let current = this.head;
-    while (current.next) {
-      if (current.next.data === data) {
-        current.next = current.next.next;
-        this.size--;
-        if (!current.next) {
-          this.tail = current;
+    let prev = this.tail;
+    let i = 0;
+    while (i < this.size) {
+      if (current.data === data) {
+        if (i === 0) {
+          this.head = this.head.next;
           this.tail.next = this.head;
-          return;
+          prev = this.tail;
+        } else {
+          prev.next = current.next;
+          if (i === this.size - 1) this.tail = prev;
         }
+        this.size--;
+        i--;
       } else {
-        current = current.next;
+        prev = current;
       }
+      current = current.next;
+      i++;
     }
   }
 
@@ -204,12 +198,12 @@ class CircularList {
   }
 
   extend(list) {
-    if (!(list instanceof CircularList)) {
-      throw new Error('Error. Expected instance of CircularList.');
-    }
-    for (const element of list) {
-      const { data } = element;
-      this.append(data);
+    let current = list.head;
+    let i = 0;
+    while (i < list.size) {
+      this.append(current.data);
+      current = current.next;
+      i++;
     }
   }
 }
