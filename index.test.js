@@ -26,40 +26,31 @@ describe('CircularList', () => {
     it('should append a node to an empty list', () => {
       const list = new CircularList();
       list.append('A');
+      expect(list.get(0)).toBe('A');
       expect(list.length()).toBe(1);
-      expect(list.head.data).toBe('A');
-      expect(list.head.next).toBe(list.head);
     });
 
     it('should append a node to a non-empty list', () => {
       const list = new CircularList();
       list.append('A');
       list.append('B');
-      expect(list.length()).toBe(2);
-      expect(list.head.data).toBe('A');
-      expect(list.tail.data).toBe('B');
-      expect(list.head.next.data).toBe('B');
-      expect(list.tail.next).toBe(list.head);
+      list.append('C');
+      expect(list.get(0)).toBe('A');
+      expect(list.get(1)).toBe('B');
+      expect(list.get(2)).toBe('C');
+      expect(list.length()).toBe(3);
     });
+    it('should cause an error when an incorrect data type is passed', () => {
+      const linkedList = new CircularList();
 
-    it('should throw an error when given non-character data', () => {
-      const list = new CircularList();
-      expect(() => {
-        list.append(1);
-      }).toThrow('Error. Wrong input data type, expected type char.');
-      expect(list.length()).toBe(0);
-      expect(list.head).toBe(null);
-      expect(list.tail).toBe(null);
-    });
+      expect(linkedList.length()).toBe(0);
 
-    it('should throw an error when given a string with more than one character', () => {
-      const list = new CircularList();
-      expect(() => {
-        list.append('ab');
-      }).toThrow('Error. Wrong input data type, expected type char.');
-      expect(list.length()).toBe(0);
-      expect(list.head).toBe(null);
-      expect(list.tail).toBe(null);
+      expect(() => linkedList.append(5)).toThrow('Error. Wrong input data type, expected type char.');
+      expect(() => linkedList.append(null)).toThrow('Error. Wrong input data type, expected type char.');
+      expect(() => linkedList.append(['a', 6, 'd'])).toThrow('Error. Wrong input data type, expected type char.');
+      expect(() => linkedList.append({})).toThrow('Error. Wrong input data type, expected type char.');
+      expect(() => linkedList.append(true)).toThrow('Error. Wrong input data type, expected type char.');
+      expect(() => linkedList.append(undefined)).toThrow('Error. Wrong input data type, expected type char.');
     });
   });
   describe('insert()', () => {
@@ -201,24 +192,33 @@ describe('CircularList', () => {
       expect(list.get(2)).toEqual('d');
     });
 
-    it('should delete all nodes with the specified data from the list, including the head and tail nodes', () => {
+    it('should remove from the list all elements whose values are equal to the searched one', () => {
       const list = new CircularList();
       list.append('a');
       list.append('b');
+      list.append('c');
       list.append('a');
-      list.deleteAll('a');
-      expect(list.length()).toEqual(1);
-      expect(list.get(0)).toEqual('b');
-      expect(list.tail.data).toEqual('b');
-      expect(list.head.data).toEqual('b');
+      list.append('d');
+      list.append('a');
+      list.deleteAll('b');
+
+      expect(list.length()).toBe(5);
+
+      expect(list.get(0)).toBe('a');
+      expect(list.get(1)).toBe('c');
+      expect(list.get(2)).toBe('a');
+      expect(list.get(3)).toBe('d');
+      expect(list.get(4)).toBe('a');
+
     });
 
     it('should do nothing if the list is empty', () => {
       const list = new CircularList();
       list.deleteAll('a');
-      expect(list.length()).toEqual(0);
-      expect(list.head).toBeNull();
-      expect(list.tail).toBeNull();
+      const attempt1 = () => list.get(0);
+
+      expect(list.length()).toBe(0);
+      expect(attempt1).toThrow('Error. Index out of range.');
     });
 
     it('should do nothing if the specified data is not in the list', () => {
@@ -338,59 +338,60 @@ describe('CircularList', () => {
   });
 
   describe('clear()', () => {
-    it('should clear the list', () => {
+    it('must remove all elements from the list and reset the length to zero', () => {
       const list = new CircularList();
       list.append('a');
       list.append('b');
       list.append('c');
-      expect(list.size).toBe(3);
+
+      expect(list.length()).toBe(3);
+
       list.clear();
-      expect(list.size).toBe(0);
-      expect(list.head).toBe(null);
-      expect(list.tail).toBe(null);
+
+      expect(list.length()).toBe(0);
+      const attempt1 = () => list.get(0);
+      expect(attempt1).toThrow('Error. Index out of range.');
     });
   });
   describe('extend()', () => {
-    let linkedList;
-
     it('should take another list and add its elements to the current list', () => {
-      linkedList = new CircularList();
-      linkedList.append('a');
-      linkedList.append('b');
-      linkedList.append('c');
-      const linkedList_2 = new CircularList();
-      linkedList_2.append('x');
-      linkedList_2.append('y');
-      linkedList_2.append('z');
+      const list = new CircularList();
+      list.append('a');
+      list.append('b');
+      list.append('c');
+      const list2 = new CircularList();
+      list2.append('x');
+      list2.append('y');
+      list2.append('e');
 
-      linkedList_2.extend(linkedList);
+      list2.extend(list);
 
-      expect(linkedList_2.length()).toBe(6);
+      expect(list2.length()).toBe(6);
 
-      expect(linkedList_2.get(0)).toBe('x');
-      expect(linkedList_2.get(1)).toBe('y');
-      expect(linkedList_2.get(2)).toBe('z');
-      expect(linkedList_2.get(3)).toBe('a');
-      expect(linkedList_2.get(4)).toBe('b');
-      expect(linkedList_2.get(5)).toBe('c');
+      expect(list2.get(0)).toBe('x');
+      expect(list2.get(1)).toBe('y');
+      expect(list2.get(2)).toBe('e');
+      expect(list2.get(3)).toBe('a');
+      expect(list2.get(4)).toBe('b');
+      expect(list2.get(5)).toBe('c');
     });
 
     it('the lists must be independent', () => {
-      linkedList = new CircularList();
-      linkedList.append('a');
-      linkedList.append('b');
-      linkedList.append('c');
-      const linkedList_2 = new CircularList();
+      const list = new CircularList();
+      list.append('a');
+      list.append('b');
+      list.append('c');
+      const list2 = new CircularList();
 
-      linkedList_2.extend(linkedList);
+      list2.extend(list);
 
-      linkedList_2.delete(0);
+      list2.delete(0);
 
-      expect(linkedList.length()).toBe(3);
-      expect(linkedList_2.length()).toBe(2);
-      linkedList_2.append('z');
-      expect(linkedList.get(2)).toBe('c');
-      expect(linkedList_2.get(2)).toBe('z');
+      expect(list.length()).toBe(3);
+      expect(list2.length()).toBe(2);
+      list2.append('e');
+      expect(list.get(2)).toBe('c');
+      expect(list2.get(2)).toBe('e');
     });
   });
 });
