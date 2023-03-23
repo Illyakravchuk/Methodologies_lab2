@@ -42,7 +42,7 @@ class List {
 
   clone() {
     const newList = new List();
-    for (let i = 0; i <= this.#list.length; i++) {
+    for (let i = 0; i < this.#list.length; i++) {
       newList.append(this.#list[i]);
     }
     return newList;
